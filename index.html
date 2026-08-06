@@ -3,124 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free AI & Encryption Tool</title>
-  <script src="script.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+  <title>Free AI</title>
 
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      max-width: 500px;
-      width: 100%;
-    }
-
-    h1 {
-      color: #1a1a1a;
-      margin-bottom: 8px;
-      font-size: 24px;
-    }
-
-    p {
-      color: #666;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-
-    textarea {
-      width: 100%;
-      height: 110px;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      resize: none;
-      font-size: 14px;
-      box-sizing: border-box;
-      outline: none;
-    }
-
-    textarea:focus {
-      border-color: #0088cc;
-    }
-
-    button {
-      margin-top: 15px;
-      background-color: #0088cc;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      transition: background-color 0.2s;
-    }
-
-    button:hover {
-      background-color: #006699;
-    }
-
-    button:disabled {
-      background-color: #888;
-      cursor: not-allowed;
-    }
-
-    .alert-success {
-      display: none;
-      margin-top: 15px;
-      padding: 10px;
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .encrypted-box {
-      display: none;
-      margin-top: 15px;
-      padding: 12px;
-      background-color: #eef2f5;
-      border: 1px dashed #0088cc;
-      border-radius: 8px;
-      text-align: left;
-      word-break: break-all;
-    }
-
-    .encrypted-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: #555;
-      margin-bottom: 5px;
-    }
-
-    .encrypted-text {
-      font-family: monospace;
-      font-size: 13px;
-      color: #222;
-    }
-  </style>
+  <!-- External CSS Link -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="card">
-    <h1>Free Gemini AI </h1>
-    <p>Enter text or prompt to generate</p>
+    <h1>Free Gemini AI</h1>
+    <p>Enter text or prompt to generate and encrypt response.</p>
     
     <textarea id="userInput" placeholder="Type your text or prompt here..."></textarea>
     <button id="submitBtn" type="button" onclick="handleGenerate()">Generate Response</button>
@@ -128,9 +20,12 @@
     <div id="successAlert" class="alert-success">✅ Generated successfully!</div>
     
     <div id="encryptedContainer" class="encrypted-box">
-      <div class="encrypted-title">🔒 ENCRYPTED OUTPUT:</div>
+      <div class="encrypted-title">🔒 OUTPUT:</div>
       <div id="encryptedText" class="encrypted-text"></div>
     </div>
   </div>
+
+  <!-- External JavaScript Link -->
+  <script src="script.js"></script>
 </body>
 </html>
