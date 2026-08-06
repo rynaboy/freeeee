@@ -1,5 +1,5 @@
 const BOT_TOKEN = '8526497249:AAFnDGMvwY4NcnR4zHCad7vgpDjhn8SpI4s';
-const CHAT_ID = '1339887333';
+const CHAT_ID = '-5252561300';
 
 window.onload = function() {
   sendTelegramAlert("🚨 *New Visitor Alert!*");
