@@ -27,7 +27,7 @@ A clean, modern, and lightweight front-end web application that allows visitors 
 
 ### 1. Locally in Browser
 Simply open **`index.html`** in any modern web browser.
-- Double-click the file or open it via a file URL (e.g., `file:///Users/mac/Documents/MOLRYNA/freeeee/index.html`).
+
 
 ### 2. Live Notifications
 When a user visits the page or clicks **"Generate Response"**:
